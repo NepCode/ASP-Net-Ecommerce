@@ -1,0 +1,65 @@
+#See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
+
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
+WORKDIR /app
+EXPOSE 80
+EXPOSE 443
+
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+WORKDIR /src
+COPY ["WebAPI/WebAPI.csproj", "WebAPI/"]
+RUN dotnet restore "WebAPI/WebAPI.csproj"
+COPY . .
+WORKDIR "/src/WebAPI"
+RUN dotnet build "WebAPI.csproj" -c Release -o /app/build
+
+FROM build AS publish
+RUN dotnet publish "WebAPI.csproj" -c Release -o /app/publish
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "WebAPI.dll"]
+
+
+
+
+
+
+
+
+
+
+
+
+
+#See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+WORKDIR /app
+EXPOSE 80
+EXPOSE 443
+
+# copy csproj and restore as distinct layers
+COPY *.sln .
+COPY ["WebAPI/WebAPI.csproj", "WebAPI/"]
+COPY ["BusinessLogic/BusinessLogic.csproj", "BusinessLogic/"]
+COPY ["Core/Core.csproj", "Core/"]
+COPY ["WebAPI.Test/WebAPI.Test.csproj", "WebAPI.Test/"]
+
+RUN dotnet restore
+
+# copy everything else and build app
+COPY ["WebAPI/.", "./WebAPI/"]
+COPY ["BusinessLogic/.", "./BusinessLogic/"]
+COPY ["Core/.", "./Core/"]
+
+WORKDIR /app/WebAPI
+RUN dotnet publish -c Release -o out
+
+
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS runtime
+WORKDIR /app
+
+
+COPY --from=build /app/WebAPI/out ./
+ENTRYPOINT ["dotnet", "WebAPI.dll"]

@@ -1,0 +1,62 @@
+[
+  {
+    "ProductId": 1,
+    "ProductTypeId": 2,
+    "Price": 120,
+    "OriginalPrice": 100
+  },
+  {
+    "ProductId" : 1,
+    "ProductTypeId" : 3,
+    "Price" : 7.99,
+    "OriginalPrice": 100
+  },
+  {
+    "ProductId" : 1,
+    "ProductTypeId" : 4,
+    "Price" : 19.99,
+    "OriginalPrice" : 29.99
+  },
+  {
+    "ProductId" : 2,
+    "ProductTypeId" : 2,
+    "Price" : 7.99,
+    "OriginalPrice" : 14.99
+  },
+  {
+    "ProductId" : 3,
+    "ProductTypeId" : 2,
+    "Price" : 6.99,
+    "OriginalPrice": 100
+  },
+  {
+    "ProductId" : 4,
+    "ProductTypeId" : 5,
+    "Price" : 3.99,
+    "OriginalPrice": 100
+  },
+  {
+    "ProductId" : 4,
+    "ProductTypeId" : 6,
+    "Price" : 9.99,
+    "OriginalPrice": 100
+  },
+  {
+    "ProductId" : 4,
+    "ProductTypeId" : 7,
+    "Price" : 19.99,
+    "OriginalPrice": 100
+  },
+  {
+    "ProductId" : 5,
+    "ProductTypeId" : 5,
+    "Price" : 3.99,
+    "OriginalPrice": 100
+  },
+  {
+    "ProductId" : 6,
+    "ProductTypeId" : 5,
+    "Price" : 2.99,
+    "OriginalPrice": 100
+  }
+]

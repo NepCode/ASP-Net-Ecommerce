@@ -1,0 +1,22 @@
+[
+	{
+		"Name":   	"fast shipping",
+		"Description": 	"fastest",
+		"Price": 	15
+	},
+	{
+		"Name": "regular shipping",
+		"Description": "",
+		"Price": 10
+	},
+	{
+		"Name": "cheap shipping",
+		"Description": "",
+		"Price": 5
+	},
+	{
+		"Name": "free shipping",
+		"Description": "s",
+		"Price": 0
+	}
+]

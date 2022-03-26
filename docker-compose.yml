@@ -1,0 +1,22 @@
+version: '3'
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "A!a4765f8d7"
+    ports:
+      - "1433:1433"
+  web-api:
+    image: ecommerce:1.0.0
+    build: .
+    environment:
+      DBServer: "db"
+      DBPort: "1433"
+      DBUser: "sa"
+      DBPassword: "A!a4765f8d7"
+      DBName: "asp_netcore_ecommerce"
+    depends_on:
+      - db
+    ports:
+      - "8080:80"

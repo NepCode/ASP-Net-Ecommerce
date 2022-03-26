@@ -1,0 +1,58 @@
+[
+  {
+    "Name": "Jeans",
+    "Description": "casual jeans",
+    "Stock": 100,
+    "BrandId": 1,
+    "CategoryId": 1,
+    "Price": 120,
+    "Featured" : true,
+    "ImageUrl": ""
+  },
+  {
+    "Name": "Shirt",
+    "Description": "casual shirt",
+    "Stock": 600,
+    "BrandId": 2,
+    "CategoryId": 2,
+    "Price": 60,
+    "ImageUrl": ""
+  },
+  {
+    "Name": "t-shirt",
+    "Description": "t-shirt",
+    "Stock": 500,
+    "BrandId": 3,
+    "CategoryId": 1,
+    "Price": 50,
+    "ImageUrl": ""
+  },
+  {
+    "Name": "shoes",
+    "Description": "shoes for special occasions",
+    "Stock": 1000,
+    "BrandId": 4,
+    "CategoryId": 1,
+    "Price": 120,
+    "ImageUrl": ""
+  },
+  {
+    "Name": "Brooks Adrenaline GTS 21",
+    "Description": "running shoes for outdoors",
+    "Stock": 600,
+    "BrandId": 2,
+    "CategoryId": 3,
+    "Price": 120,
+    "Featured" : true,
+    "ImageUrl": ""
+  },
+  {
+    "Name": "swimsuit",
+    "Description": "swimsuit",
+    "Stock": 200,
+    "BrandId": 1,
+    "CategoryId": 4,
+    "Price": 500,
+    "ImageUrl": ""
+  }
+  ]
