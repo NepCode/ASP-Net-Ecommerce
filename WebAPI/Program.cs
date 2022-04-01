@@ -1,7 +1,12 @@
 using BusinessLogic.Data;
 using BusinessLogic.Logic;
 using Core.Interfaces;
+using Core.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using WebAPI.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,6 +26,43 @@ builder.Services.AddCors(options => {
 // Generic Class using pattern repository
 builder.Services.AddScoped(typeof(IGenericRepository<>), (typeof(GenericRepository<>)));
 
+
+// IdentityCore
+/*builder.Services.AddIdentityCore<User>();
+builder = new IdentityBuilder(builder.UserType, builder.Services);
+builder.Services.Configure<IdentityBuilder>(options =>
+{
+    options.AddEntityFrameworkStores<SecurityDbContext>();
+    options.AddSignInManager<SignInManager<User>>();
+});
+builder.Services.AddAuthentication();*/
+
+builder.Services.AddScoped<ITokenService, TokenService>();
+
+builder.Services
+    .AddIdentityCore<User>()
+    .AddSignInManager<SignInManager<User>>()
+    .AddEntityFrameworkStores<SecurityDbContext>();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            //ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        };
+    });
+
+
+
+
+
 // DbContext
 var server = builder.Configuration.GetValue<string>("DBServer") ?? "localhost";
 var port = builder.Configuration["DBPort"] ?? "1433";
@@ -33,6 +75,10 @@ builder.Services.AddDbContext<DataContext>(opts =>
     //opts.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
     opts.UseSqlServer( $"Server={server},{port};Initial Catalog={database};User ID ={user};Password={password}");
     //opts.UseSqlServer( $"Server=db,{port};Initial Catalog={database};User ID ={user};Password={password}");
+});
+builder.Services.AddDbContext<SecurityDbContext>(opts =>
+{
+    opts.UseSqlServer($"Server={server},{port};Initial Catalog={database};User ID ={user};Password={password}");
 });
 
 // Automapper
@@ -58,6 +104,11 @@ using (var scope = app.Services.CreateScope())
         var context = services.GetRequiredService<DataContext>();
         context.Database.Migrate();
         await DataContextSeedData.LoadDataAsync(context, loggerFactory);
+
+        var userManager = services.GetRequiredService<UserManager<User>>();
+        var identityContext = services.GetRequiredService<SecurityDbContext>();
+        await identityContext.Database.MigrateAsync();
+        await SecurityDbContextSeedData.SeedUserAsync(userManager);
     }
     catch (Exception e)
     {
@@ -79,6 +130,8 @@ app.UseMiddleware<ExceptionMiddleware>();
 app.UseStatusCodePagesWithReExecute("/errors", "?code={0}");
 
 app.UseCors("CORSRule");
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

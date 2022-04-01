@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Core.Models;
+using WebAPI.DTO.Address;
 using WebAPI.DTO.Product;
 
 namespace WebAPI.Profiles
@@ -13,6 +14,8 @@ namespace WebAPI.Profiles
                 .ForMember(p => p.BrandName, x => x.MapFrom(a => a.Brand.Name));
             CreateMap<ProductCreateDTO, Product>();
             CreateMap<ProductUpdateDTO, Product>();
+
+            CreateMap<Address, AddressReadDTO>().ReverseMap();
 
         }
 
