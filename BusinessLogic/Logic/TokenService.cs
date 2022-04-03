@@ -24,7 +24,7 @@ namespace BusinessLogic.Logic
             _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
         }
 
-        public string CreateToken(User user)
+        public string CreateToken(User user, IList<string> roles)
         {
             var claims = new List<Claim>
             {
@@ -34,13 +34,13 @@ namespace BusinessLogic.Logic
                 new Claim("username", user.UserName),
             };
 
-            /*if (roles != null && roles.Count > 0)
+            if (roles != null && roles.Count > 0)
             {
                 foreach (var role in roles)
                 {
                     claims.Add(new Claim(ClaimTypes.Role, role));
                 }
-            }*/
+            }
 
 
             var credencials = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);

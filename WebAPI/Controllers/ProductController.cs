@@ -2,6 +2,7 @@
 using Core.Interfaces;
 using Core.Models;
 using Core.Specifications;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebAPI.DTO.Product;
 using WebAPI.Errors;
@@ -77,6 +78,7 @@ namespace WebAPI.Controllers
         }
 
         // POST api/<ProductController>
+        [Authorize(Roles = "admin")]
         [HttpPost]
         public async Task<ActionResult<Product>> AddProduct(ProductCreateDTO product)
         {
@@ -91,6 +93,7 @@ namespace WebAPI.Controllers
         }
 
         // PUT api/<ProductController>/5
+        [Authorize(Roles = "admin")]
         [HttpPut("{id}")]
         public async Task<ActionResult<Product>> UpdateProduct(int id, ProductUpdateDTO product)
         {
@@ -105,6 +108,7 @@ namespace WebAPI.Controllers
         }
 
         // DELETE api/<ProductController>/5
+        [Authorize(Roles = "admin")]
         [HttpDelete("{id}")]
         public async Task<ActionResult<bool>> DeleteProduct(int id)
         {

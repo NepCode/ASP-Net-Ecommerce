@@ -2,9 +2,11 @@ using BusinessLogic.Data;
 using BusinessLogic.Logic;
 using Core.Interfaces;
 using Core.Models;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using WebAPI.Middleware;
@@ -28,20 +30,12 @@ builder.Services.AddScoped(typeof(IGenericRepository<>), (typeof(GenericReposito
 
 
 // IdentityCore
-/*builder.Services.AddIdentityCore<User>();
-builder = new IdentityBuilder(builder.UserType, builder.Services);
-builder.Services.Configure<IdentityBuilder>(options =>
-{
-    options.AddEntityFrameworkStores<SecurityDbContext>();
-    options.AddSignInManager<SignInManager<User>>();
-});
-builder.Services.AddAuthentication();*/
-
 builder.Services.AddScoped<ITokenService, TokenService>();
 
 builder.Services
     .AddIdentityCore<User>()
     .AddSignInManager<SignInManager<User>>()
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<SecurityDbContext>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -89,6 +83,8 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.TryAddSingleton<ISystemClock, SystemClock>();
+
 builder.Services.AddTransient<IProductRepository, ProductRepository>();
 
 var app = builder.Build();
@@ -106,9 +102,10 @@ using (var scope = app.Services.CreateScope())
         await DataContextSeedData.LoadDataAsync(context, loggerFactory);
 
         var userManager = services.GetRequiredService<UserManager<User>>();
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
         var identityContext = services.GetRequiredService<SecurityDbContext>();
         await identityContext.Database.MigrateAsync();
-        await SecurityDbContextSeedData.SeedUserAsync(userManager);
+        await SecurityDbContextSeedData.SeedUserAsync(userManager, roleManager);
     }
     catch (Exception e)
     {

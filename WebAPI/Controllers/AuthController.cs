@@ -54,15 +54,16 @@ namespace WebAPI.Controllers
             }
             else
             {
-                //var roles = await _userManager.GetRolesAsync(user);
+                var roles = await _userManager.GetRolesAsync(user);
                 //return _repository.BuildToken(userInfo, roles, user.Id);
                 return new UserReadDTO
                 {
+                    Id = user.Id,
                     Email = user.Email,
                     Username = user.UserName,
                     Name = user.Name,
-                    Token = _tokenService.CreateToken(user),
-                    //Admin = roles.Contains("ADMIN") ? true : false
+                    Token = _tokenService.CreateToken(user,roles),
+                    Admin = roles.Contains("admin") ? true : false
                 };
             }
         }
@@ -83,7 +84,6 @@ namespace WebAPI.Controllers
                 UserName = userInfo.Username,
                 Email = userInfo.Email
             };
-
             var result = await _userManager.CreateAsync(user, userInfo.Password);
             if (!result.Succeeded)
             {
@@ -91,11 +91,12 @@ namespace WebAPI.Controllers
             }
             return new UserReadDTO
             {
+                Id = user.Id,
                 Email = user.Email,
                 Username = user.UserName,
                 Name = user.Name,
-                Token = _tokenService.CreateToken(user),
-                /*Admin = roles.Contains("ADMIN") ? true : false*/
+                Token = _tokenService.CreateToken(user,null),
+                Admin = false
             };
 
         }
@@ -110,14 +111,15 @@ namespace WebAPI.Controllers
         public async Task<ActionResult<UserReadDTO>> GetUser()
         {
             var user = await _userManager.SearchUserAsync(HttpContext.User);
-            //var roles = await _userManager.GetRolesAsync(user);
+            var roles = await _userManager.GetRolesAsync(user);
             return new UserReadDTO
             {
+                Id = user.Id,
                 Name = user.Name,
                 Email = user.Email,
                 Username = user.UserName,
-                Token = _tokenService.CreateToken(user),
-                //Admin = roles.Contains("ADMIN") ? true : false
+                Token = _tokenService.CreateToken(user, roles),
+                Admin = roles.Contains("admin") ? true : false
             };
         }
 
@@ -125,7 +127,7 @@ namespace WebAPI.Controllers
 
         // @desc Validate user email
         // @route GET api/auth/validateEmail
-        // @access Private
+        // @access Public
         [HttpGet("validateEmail")]
         public async Task<ActionResult<bool>> validateEmail([FromQuery] string email)
         {
@@ -143,6 +145,7 @@ namespace WebAPI.Controllers
         // @desc get user's addresses
         // @route GET api/auth/addresses
         // @access Private
+        [Authorize]
         [HttpGet("addresses")]
         public async Task<ActionResult<List<AddressReadDTO>>> GetAddress()
         {

@@ -2,6 +2,7 @@
 using Core.Models;
 using WebAPI.DTO.Address;
 using WebAPI.DTO.Product;
+using WebAPI.DTO.User;
 
 namespace WebAPI.Profiles
 {
@@ -16,6 +17,8 @@ namespace WebAPI.Profiles
             CreateMap<ProductUpdateDTO, Product>();
 
             CreateMap<Address, AddressReadDTO>().ReverseMap();
+
+            CreateMap<User, UserReadDTO>().ReverseMap();
 
         }
 
