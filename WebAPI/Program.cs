@@ -86,6 +86,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.TryAddSingleton<ISystemClock, SystemClock>();
 
 builder.Services.AddTransient<IProductRepository, ProductRepository>();
+builder.Services.AddTransient<ICartRepository, CartRepository>();
 
 var app = builder.Build();
 
