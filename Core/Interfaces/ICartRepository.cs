@@ -10,7 +10,7 @@ namespace Core.Interfaces
     public interface ICartRepository
     {
         Task<List<CartProductResponse>> GetCartProducts(List<CartItem> cartItems);
-        Task<List<CartProductResponse>> StoreCartItems(List<CartItem> cartItems);
+        Task<List<CartProductResponse>> StoreCartItems(List<CartItem> cartItems, User user);
         Task<int> GetCartItemsCount();
         Task<List<CartProductResponse>>GetDbCartProducts(int? userId = null);
         Task<bool>AddToCart(CartItem cartItem);

@@ -19,6 +19,7 @@ namespace BusinessLogic.Data
         public DbSet<Brand> Brands { get; set; }
         public DbSet<ProductType> ProductTypes { get; set; }
         public DbSet<ProductVariant> ProductVariants { get; set; }
+        public DbSet<CartItem> CartItems { get; set; }
          
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

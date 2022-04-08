@@ -2,6 +2,8 @@
 using Core.Interfaces;
 using Core.Models;
 using Core.Specifications;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -15,13 +17,14 @@ namespace BusinessLogic.Logic
     {
         private readonly DataContext _context;
         private readonly IGenericRepository<Product> _productRepository;
+        private readonly UserManager<User> _userManager;
 
-        public CartRepository(DataContext context, IGenericRepository<Product> productRepository)
+        public CartRepository(DataContext context, IGenericRepository<Product> productRepository, UserManager<User> userManager)
         {
             _context = context;
             _productRepository = productRepository;
+            _userManager = userManager;
         }
-
         public Task<bool> AddToCart(CartItem cartItem)
         {
             throw new NotImplementedException();
@@ -64,7 +67,8 @@ namespace BusinessLogic.Logic
                     ImageURL = product.ImageUrl,
                     Price = productVariant.Price,
                     ProductType = productVariant.ProductType.Name,
-                    ProductTypeId = productVariant.ProductTypeId
+                    ProductTypeId = productVariant.ProductTypeId,
+                    Quantity = item.Quantity,
                 };
 
                 result.Add(cartProduct);
@@ -83,9 +87,15 @@ namespace BusinessLogic.Logic
             throw new NotImplementedException();
         }
 
-        public Task<List<CartProductResponse>> StoreCartItems(List<CartItem> cartItems)
+        public async Task<List<CartProductResponse>> StoreCartItems(List<CartItem> cartItems, User user)
         {
-            throw new NotImplementedException();
+            var userdd = await _userManager.SearchUserAsync(HttpContext.User);
+            cartItems.ForEach(cartItem => cartItem.UserId = user.Id );
+            _context.CartItems.AddRange(cartItems);
+            await _context.SaveChangesAsync();
+
+            return await GetCartProducts(await _context.CartItems
+                .Where(ci => ci.UserId == user.Id).ToListAsync());
         }
 
         public Task<bool> UpdateQuantity(CartItem cartItem)
