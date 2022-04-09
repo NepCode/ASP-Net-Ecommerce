@@ -30,7 +30,7 @@ namespace WebAPI.Controllers
 
         // GET: api/<ProductController>
         [HttpGet]
-        public async Task<ActionResult<ServiceResponse<IReadOnlyList<ProductReadDTO>>>> GetProducts( [FromQuery] ProductSpecificationParams productParams)
+        public async Task<ActionResult<ServiceResponseList<IReadOnlyList<ProductReadDTO>>>> GetProducts( [FromQuery] ProductSpecificationParams productParams)
         {
             //var products = await __productRepository.GetAllAsync();
             var specs = new ProductWithCategoryAndBrandSpecification(productParams);
@@ -44,7 +44,7 @@ namespace WebAPI.Controllers
 
             var data = _mapper.Map<IReadOnlyList<Product>, IReadOnlyList<ProductReadDTO>>(products);
             return Ok(
-                    new ServiceResponse<IReadOnlyList<ProductReadDTO>>
+                    new ServiceResponseList<IReadOnlyList<ProductReadDTO>>
                     {
                         Count = totalProducts,
                         PageIndex = productParams.PageIndex,
