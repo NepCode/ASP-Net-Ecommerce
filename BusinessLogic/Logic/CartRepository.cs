@@ -25,14 +25,28 @@ namespace BusinessLogic.Logic
             _productRepository = productRepository;
             _userManager = userManager;
         }
-        public Task<bool> AddToCart(CartItem cartItem)
+        public async Task<ServiceResponse<bool>> AddToCart(CartItem cartItem, string userId  )
         {
-            throw new NotImplementedException();
+            var sameItem = await _context.CartItems
+                .FirstOrDefaultAsync( ci => ci.ProductId == cartItem.ProductId &&
+                ci.ProductTypeId == cartItem.ProductTypeId &&
+                ci.UserId == userId );
+            if(sameItem == null)
+            {
+                _context.CartItems.Add( cartItem );
+            }
+            else
+            {
+                sameItem.Quantity += cartItem.Quantity ;
+            }
+            await _context.SaveChangesAsync();
+            return new ServiceResponse<bool> { Data = true };
         }
 
-        public Task<int> GetCartItemsCount()
+        public async Task<ServiceResponse<int>> GetCartItemsCount(User user)
         {
-            throw new NotImplementedException();
+            var count = (await _context.CartItems.Where(ci => ci.UserId == user.Id ).ToListAsync()).Count;
+            return new ServiceResponse<int> { Data = count };
         }
 
         public async Task<List<CartProductResponse>> GetCartProducts(List<CartItem> cartItems)
@@ -77,30 +91,66 @@ namespace BusinessLogic.Logic
             return result;
         }
 
-        public Task<List<CartProductResponse>> GetDbCartProducts(int? userId = null)
+        public async Task<List<CartProductResponse>> GetDbCartProducts(string? userId = null)
         {
-            throw new NotImplementedException();
+            return await GetCartProducts(await _context.CartItems
+                .Where(ci => ci.UserId == userId).ToListAsync());
         }
 
-        public Task<bool> RemoveItemFromCart(int productId, int productTypeId)
+        public async Task<ServiceResponse<bool>> RemoveItemFromCart(int productId, int productTypeId, string userId)
         {
-            throw new NotImplementedException();
+            var dbCartItem = await _context.CartItems
+                .FirstOrDefaultAsync(ci => ci.ProductId == productId &&
+                ci.ProductTypeId == productTypeId &&
+                ci.UserId == userId);
+            if (dbCartItem == null)
+            {
+                return new ServiceResponse<bool>
+                {
+                    Data = false,
+                    Success = false,
+                    Message = "Cart item does not exist."
+                };
+            }
+
+            _context.CartItems.Remove(dbCartItem);
+            await _context.SaveChangesAsync();
+
+            return new ServiceResponse<bool> { Data = true };
         }
 
         public async Task<List<CartProductResponse>> StoreCartItems(List<CartItem> cartItems, User user)
         {
-            var userdd = await _userManager.SearchUserAsync(HttpContext.User);
+            //var userdd = await _userManager.SearchUserAsync(HttpContext.User);
             cartItems.ForEach(cartItem => cartItem.UserId = user.Id );
             _context.CartItems.AddRange(cartItems);
             await _context.SaveChangesAsync();
 
-            return await GetCartProducts(await _context.CartItems
-                .Where(ci => ci.UserId == user.Id).ToListAsync());
+            /*return await GetCartProducts(await _context.CartItems
+                .Where(ci => ci.UserId == user.Id).ToListAsync());*/
+            return await GetDbCartProducts(user.Id);
         }
 
-        public Task<bool> UpdateQuantity(CartItem cartItem)
+        public async Task<ServiceResponse<bool>> UpdateQuantity(CartItem cartItem, string userId)
         {
-            throw new NotImplementedException();
+            var dbCartItem = await _context.CartItems
+                .FirstOrDefaultAsync(ci => ci.ProductId == cartItem.ProductId &&
+                ci.ProductTypeId == cartItem.ProductTypeId &&
+                ci.UserId == userId);
+            if (dbCartItem == null)
+            {
+                return new ServiceResponse<bool>
+                {
+                    Data = false,
+                    Success = false,
+                    Message = "Cart item does not exist."
+                };
+            }
+
+            dbCartItem.Quantity = cartItem.Quantity;
+            await _context.SaveChangesAsync();
+
+            return new ServiceResponse<bool> { Data = true };
         }
     }
 }

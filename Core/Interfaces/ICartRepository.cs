@@ -11,10 +11,10 @@ namespace Core.Interfaces
     {
         Task<List<CartProductResponse>> GetCartProducts(List<CartItem> cartItems);
         Task<List<CartProductResponse>> StoreCartItems(List<CartItem> cartItems, User user);
-        Task<int> GetCartItemsCount();
-        Task<List<CartProductResponse>>GetDbCartProducts(int? userId = null);
-        Task<bool>AddToCart(CartItem cartItem);
-        Task<bool> UpdateQuantity(CartItem cartItem);
-        Task<bool> RemoveItemFromCart(int productId, int productTypeId);
+        Task<ServiceResponse<int>> GetCartItemsCount(User user);
+        Task<List<CartProductResponse>>GetDbCartProducts(string? userId = null);
+        Task<ServiceResponse<bool>> AddToCart(CartItem cartItem, string userId  );
+        Task<ServiceResponse<bool>> UpdateQuantity(CartItem cartItem, string userId);
+        Task<ServiceResponse<bool>> RemoveItemFromCart(int productId, int productTypeId, string userId);
     }
 }

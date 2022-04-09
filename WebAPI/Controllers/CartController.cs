@@ -23,29 +23,39 @@ namespace WebAPI.Controllers
             _userManager = userManager;
         }
 
+        [Authorize]
+        [HttpPost("add")]
+        public async Task<ActionResult<ServiceResponseList<List<CartProductResponse>>>> AddToCart(CartItem cartItem)
+        {
+            var user = await _userManager.SearchUserAsync(HttpContext.User);
+            var result = await _cartService.AddToCart(cartItem, user.Id);
+            return Ok(result);
+        }
+
 
         // GET: api/<CartController>/products
         [HttpPost("products")]
         public async Task<ActionResult<ServiceResponse<List<CartProductResponse>>>> GetCartProducts(List<CartItem> cartItems)
         {
             var result = await _cartService.GetCartProducts(cartItems);
-            return Ok(new ServiceResponse<IReadOnlyList<CartProductResponse>>
+            return Ok(new ServiceResponse<List<CartProductResponse>>
             {
                 Data = result,
             });
         }
 
-        // GET api/<CartController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [Authorize]
+        [HttpGet("count")]
+        public async Task<ActionResult<ServiceResponse<int>>> GetCartItemsCount()
         {
-            return "value";
+            var user = await _userManager.SearchUserAsync(HttpContext.User);
+            return await _cartService.GetCartItemsCount(user);
         }
 
         // POST api/<CartController>
         [Authorize]
         [HttpPost]
-        public async Task<ActionResult<ServiceResponse<List<CartProductResponse>>>> StoreCartItems(List<CartItem> cartItems)
+        public async Task<ActionResult<ServiceResponseList<List<CartProductResponse>>>> StoreCartItems(List<CartItem> cartItems)
         {
             var user = await _userManager.SearchUserAsync(HttpContext.User);
             //var userrr4 = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
@@ -53,16 +63,37 @@ namespace WebAPI.Controllers
             return Ok(result);
         }
 
-        // PUT api/<CartController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [Authorize]
+        [HttpGet]
+        public async Task<ActionResult<ServiceResponse<List<CartProductResponse>>>> GetDbCartProducts()
         {
+            var user = await _userManager.SearchUserAsync(HttpContext.User);
+            return Ok(new ServiceResponse<IReadOnlyList<CartProductResponse>>
+            {
+                Data = await _cartService.GetDbCartProducts(user.Id)
+            });
+        }
+
+        // PUT api/<CartController>/5
+        [Authorize]
+        [HttpPut("quantity")]
+        public async Task<ActionResult<ServiceResponse<bool>>> UpdateQuantity (CartItem cartItem)
+        {
+            var user = await _userManager.SearchUserAsync(HttpContext.User);
+            var result = await _cartService.UpdateQuantity(cartItem, user.Id);
+            return Ok(result);
+
         }
 
         // DELETE api/<CartController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        [Authorize]
+        [HttpDelete("{productId}/{productTypeId}")]
+        public async Task<ActionResult<ServiceResponse<bool>>> RemoveItemFromCart( int productId, int productTypeId )
         {
+            var user = await _userManager.SearchUserAsync(HttpContext.User);
+            var result = await _cartService.RemoveItemFromCart( productId, productTypeId, user.Id);
+            return Ok(result);
+
         }
     }
 }
