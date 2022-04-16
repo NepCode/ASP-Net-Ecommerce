@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace Core.Models
 {
-    public class Address
+    public class Address : BaseClass
     {
-        public int Id { set; get; }
         public string Street { set; get; }
         public string City { set; get; }
         public string Apartment { set; get; }

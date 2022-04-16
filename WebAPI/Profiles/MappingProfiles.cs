@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Core.Models;
 using WebAPI.DTO.Address;
+using WebAPI.DTO.Order;
 using WebAPI.DTO.Product;
 using WebAPI.DTO.User;
 
@@ -19,6 +20,8 @@ namespace WebAPI.Profiles
             CreateMap<Address, AddressReadDTO>().ReverseMap();
 
             CreateMap<User, UserReadDTO>().ReverseMap();
+
+            CreateMap<Order, OrderOverviewReadDTO>().ReverseMap();
 
         }
 

@@ -14,12 +14,12 @@ namespace WebAPI.Controllers
     [ApiController]
     public class CartController : ControllerBase
     {
-        private readonly ICartRepository _cartService;
+        private readonly ICartRepository _cartRepository;
         private readonly UserManager<User> _userManager;
 
         public CartController(ICartRepository cartService, UserManager<User> userManager)
         {
-            _cartService = cartService;
+            _cartRepository = cartService;
             _userManager = userManager;
         }
 
@@ -28,7 +28,7 @@ namespace WebAPI.Controllers
         public async Task<ActionResult<ServiceResponseList<List<CartProductResponse>>>> AddToCart(CartItem cartItem)
         {
             var user = await _userManager.SearchUserAsync(HttpContext.User);
-            var result = await _cartService.AddToCart(cartItem, user.Id);
+            var result = await _cartRepository.AddToCart(cartItem, user.Id);
             return Ok(result);
         }
 
@@ -37,7 +37,7 @@ namespace WebAPI.Controllers
         [HttpPost("products")]
         public async Task<ActionResult<ServiceResponse<List<CartProductResponse>>>> GetCartProducts(List<CartItem> cartItems)
         {
-            var result = await _cartService.GetCartProducts(cartItems);
+            var result = await _cartRepository.GetCartProducts(cartItems);
             return Ok(new ServiceResponse<List<CartProductResponse>>
             {
                 Data = result,
@@ -49,7 +49,7 @@ namespace WebAPI.Controllers
         public async Task<ActionResult<ServiceResponse<int>>> GetCartItemsCount()
         {
             var user = await _userManager.SearchUserAsync(HttpContext.User);
-            return await _cartService.GetCartItemsCount(user);
+            return await _cartRepository.GetCartItemsCount(user);
         }
 
         // POST api/<CartController>
@@ -59,7 +59,7 @@ namespace WebAPI.Controllers
         {
             var user = await _userManager.SearchUserAsync(HttpContext.User);
             //var userrr4 = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var result = await _cartService.StoreCartItems(cartItems, user );
+            var result = await _cartRepository.StoreCartItems(cartItems, user );
             return Ok(result);
         }
 
@@ -70,7 +70,7 @@ namespace WebAPI.Controllers
             var user = await _userManager.SearchUserAsync(HttpContext.User);
             return Ok(new ServiceResponse<IReadOnlyList<CartProductResponse>>
             {
-                Data = await _cartService.GetDbCartProducts(user.Id)
+                Data = await _cartRepository.GetDbCartProducts(user.Id)
             });
         }
 
@@ -80,7 +80,7 @@ namespace WebAPI.Controllers
         public async Task<ActionResult<ServiceResponse<bool>>> UpdateQuantity (CartItem cartItem)
         {
             var user = await _userManager.SearchUserAsync(HttpContext.User);
-            var result = await _cartService.UpdateQuantity(cartItem, user.Id);
+            var result = await _cartRepository.UpdateQuantity(cartItem, user.Id);
             return Ok(result);
 
         }
@@ -91,7 +91,7 @@ namespace WebAPI.Controllers
         public async Task<ActionResult<ServiceResponse<bool>>> RemoveItemFromCart( int productId, int productTypeId )
         {
             var user = await _userManager.SearchUserAsync(HttpContext.User);
-            var result = await _cartService.RemoveItemFromCart( productId, productTypeId, user.Id);
+            var result = await _cartRepository.RemoveItemFromCart( productId, productTypeId, user.Id);
             return Ok(result);
 
         }

@@ -87,6 +87,7 @@ builder.Services.TryAddSingleton<ISystemClock, SystemClock>();
 
 builder.Services.AddTransient<IProductRepository, ProductRepository>();
 builder.Services.AddTransient<ICartRepository, CartRepository>();
+builder.Services.AddTransient<IOrderRepository, OrderRepository>();
 
 var app = builder.Build();
 
