@@ -63,6 +63,7 @@ namespace WebAPI.Controllers
                     Username = user.UserName,
                     Name = user.Name,
                     Token = _tokenService.CreateToken(user,roles),
+                    RefreshToken = _tokenService.CreateRefreshToken(user,roles),
                     Admin = roles.Contains("admin") ? true : false
                 };
             }
@@ -157,6 +158,20 @@ namespace WebAPI.Controllers
 
 
 
+        // @desc Login user
+        // @route POST api/users/refresh-token
+        // @access Public
+        [HttpPost("refresh-token")]
+        public async Task<ActionResult> RefreshToken( [FromBody] UserLoginDTO userInfo, [FromHeader(Name = "refresh-token")] string refreshToken )
+        {
+            var user = await _userManager.FindByEmailAsync(userInfo.Email);
+            if (user == null)
+            {
+                return BadRequest(new CodeErrorResponse(400));
+            }
+            var isValidRefreshToken = _tokenService.RefreshTokenValidator(refreshToken);
+            return Ok(isValidRefreshToken);
+        }
 
 
 

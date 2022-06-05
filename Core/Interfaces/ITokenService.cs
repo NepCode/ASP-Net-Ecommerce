@@ -10,5 +10,7 @@ namespace Core.Interfaces
     public interface ITokenService
     {
         string CreateToken(User user, IList<string> roles);
+        string CreateRefreshToken(User user, IList<string> roles);
+        bool RefreshTokenValidator(string refreshToken);
     }
 }

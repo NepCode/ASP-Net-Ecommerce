@@ -17,11 +17,13 @@ namespace BusinessLogic.Logic
         private readonly SymmetricSecurityKey _key;
 
         private readonly IConfiguration _config;
+        private readonly ITokenGenerator _tokenGenerator;
 
-        public TokenService(IConfiguration config)
+        public TokenService(IConfiguration config, ITokenGenerator tokenGenerator)
         {
             _config = config;
             _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+            _tokenGenerator = tokenGenerator;
         }
 
         public string CreateToken(User user, IList<string> roles)
@@ -57,6 +59,42 @@ namespace BusinessLogic.Logic
             var token = tokenHandler.CreateToken(tokenConfiguration);
 
             return tokenHandler.WriteToken(token);
+        }
+
+        public string CreateRefreshToken(User user, IList<string> roles)
+        {
+            return _tokenGenerator.Generate(
+                _config["Jwt:Key"],
+                _config["Jwt:Issuer"],
+                _config["Jwt:Audience"],
+                _config["Jwt:RefreshTokenExpirationMinutes"]
+                );
+        }
+
+        public bool RefreshTokenValidator(string refreshToken)
+        {
+            var validationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = false,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = _config["Jwt:Issuer"],
+                IssuerSigningKey = _key,
+                //ValidAudience = _config["Jwt:Audience"],
+                ClockSkew = TimeSpan.Zero
+            };
+
+            JwtSecurityTokenHandler jwtSecurityTokenHandler = new();
+            try
+            {
+                jwtSecurityTokenHandler.ValidateToken(refreshToken, validationParameters, out SecurityToken validatedToken);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
     }
 
