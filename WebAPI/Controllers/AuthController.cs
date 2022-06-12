@@ -62,8 +62,8 @@ namespace WebAPI.Controllers
                     Email = user.Email,
                     Username = user.UserName,
                     Name = user.Name,
-                    Token = _tokenService.CreateToken(user,roles),
-                    RefreshToken = _tokenService.CreateRefreshToken(user,roles),
+                    Token = _tokenService.GenerateAccessToken(user,roles),
+                    RefreshToken = _tokenService.GenerateRefreshToken(user,roles),
                     Admin = roles.Contains("admin") ? true : false
                 };
             }
@@ -96,7 +96,7 @@ namespace WebAPI.Controllers
                 Email = user.Email,
                 Username = user.UserName,
                 Name = user.Name,
-                Token = _tokenService.CreateToken(user,null),
+                Token = _tokenService.GenerateAccessToken(user,null),
                 Admin = false
             };
 
@@ -119,7 +119,7 @@ namespace WebAPI.Controllers
                 Name = user.Name,
                 Email = user.Email,
                 Username = user.UserName,
-                Token = _tokenService.CreateToken(user, roles),
+                Token = _tokenService.GenerateAccessToken(user, roles),
                 Admin = roles.Contains("admin") ? true : false
             };
         }
@@ -162,7 +162,7 @@ namespace WebAPI.Controllers
         // @route POST api/users/refresh-token
         // @access Public
         [HttpPost("refresh-token")]
-        public async Task<ActionResult> RefreshToken( [FromBody] UserLoginDTO userInfo, [FromHeader(Name = "refresh-token")] string refreshToken )
+        public async Task<ActionResult<UserReadDTO>> RefreshToken( [FromBody] UserLoginDTO userInfo, [FromHeader(Name = "refresh-token")] string refreshToken )
         {
             var user = await _userManager.FindByEmailAsync(userInfo.Email);
             if (user == null)
@@ -170,7 +170,20 @@ namespace WebAPI.Controllers
                 return BadRequest(new CodeErrorResponse(400));
             }
             var isValidRefreshToken = _tokenService.RefreshTokenValidator(refreshToken);
-            return Ok(isValidRefreshToken);
+            if (isValidRefreshToken) {
+                var roles = await _userManager.GetRolesAsync(user);
+                return Ok(new UserReadDTO
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    Username = user.UserName,
+                    Name = user.Name,
+                    Token = _tokenService.GenerateAccessToken(user, roles),
+                    RefreshToken = refreshToken,
+                    Admin = roles.Contains("admin") ? true : false
+                });
+            }
+            return Unauthorized(new CodeErrorResponse(401));
         }
 
 

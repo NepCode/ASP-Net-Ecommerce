@@ -128,11 +128,11 @@ namespace WebAPI.Controllers
             {
                 var roles = new List<string>();
                 roles.Add("admin");
-                userDTO.Token = _tokenService.CreateToken(user, roles);
+                userDTO.Token = _tokenService.GenerateAccessToken(user, roles);
             }
             else
             {
-                userDTO.Token = _tokenService.CreateToken(user, null);
+                userDTO.Token = _tokenService.GenerateAccessToken(user, null);
             }
 
             return userDTO;

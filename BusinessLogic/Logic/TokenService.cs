@@ -17,16 +17,14 @@ namespace BusinessLogic.Logic
         private readonly SymmetricSecurityKey _key;
 
         private readonly IConfiguration _config;
-        private readonly ITokenGenerator _tokenGenerator;
 
-        public TokenService(IConfiguration config, ITokenGenerator tokenGenerator)
+        public TokenService(IConfiguration config)
         {
             _config = config;
             _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
-            _tokenGenerator = tokenGenerator;
         }
 
-        public string CreateToken(User user, IList<string> roles)
+        public string GenerateAccessToken(User user, IList<string> roles)
         {
             var claims = new List<Claim>
             {
@@ -50,7 +48,7 @@ namespace BusinessLogic.Logic
             var tokenConfiguration = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.Now.AddDays(60),
+                Expires = DateTime.UtcNow.AddDays(Convert.ToDouble(_config["Jwt:AccessTokenExpirationDays"])),
                 SigningCredentials = credencials,
                 Issuer = _config["Jwt:Issuer"]
             };
@@ -61,14 +59,17 @@ namespace BusinessLogic.Logic
             return tokenHandler.WriteToken(token);
         }
 
-        public string CreateRefreshToken(User user, IList<string> roles)
+        public string GenerateRefreshToken(User user, IList<string> roles)
         {
-            return _tokenGenerator.Generate(
-                _config["Jwt:Key"],
-                _config["Jwt:Issuer"],
+            var credentials = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
+            JwtSecurityToken securityToken = new(
+                 _config["Jwt:Issuer"],
                 _config["Jwt:Audience"],
-                _config["Jwt:RefreshTokenExpirationMinutes"]
-                );
+                null,
+                DateTime.UtcNow,
+                DateTime.UtcNow.AddDays(Convert.ToDouble(_config["Jwt:RefreshTokenExpirationDays"])),
+                credentials);
+            return new JwtSecurityTokenHandler().WriteToken(securityToken);
         }
 
         public bool RefreshTokenValidator(string refreshToken)
@@ -96,6 +97,8 @@ namespace BusinessLogic.Logic
                 return false;
             }
         }
+
+
     }
 
 }
