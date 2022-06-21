@@ -2,12 +2,15 @@ using BusinessLogic.Data;
 using BusinessLogic.Logic;
 using Core.Interfaces;
 using Core.Models;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
+using System.Reflection;
 using System.Text;
 using WebAPI.Middleware;
 
@@ -15,7 +18,22 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers( options =>
+{
+    //options.Filters.Add<ValidateModelStateAttribute>();
+}).AddFluentValidation(fv =>
+{
+    // Validate child properties and root collection elements
+    fv.ImplicitlyValidateChildProperties = true;
+    fv.ImplicitlyValidateRootCollectionElements = true;
+    // Automatic registration of validators in assembly
+    fv.RegisterValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+});
+
+/*builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});*/
 
 builder.Services.AddCors(options => {
     options.AddPolicy("CORSRule", rule =>

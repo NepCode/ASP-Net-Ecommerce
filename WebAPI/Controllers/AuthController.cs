@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Core.Interfaces;
 using Core.Models;
+using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -8,6 +10,7 @@ using WebAPI.DTO.Address;
 using WebAPI.DTO.User;
 using WebAPI.Errors;
 using WebAPI.Extensions;
+using WebAPI.Validations;
 
 namespace WebAPI.Controllers
 {
@@ -56,7 +59,7 @@ namespace WebAPI.Controllers
             {
                 var roles = await _userManager.GetRolesAsync(user);
                 //return _repository.BuildToken(userInfo, roles, user.Id);
-                return new UserReadDTO
+                return Ok(new UserReadDTO
                 {
                     Id = user.Id,
                     Email = user.Email,
@@ -65,7 +68,7 @@ namespace WebAPI.Controllers
                     Token = _tokenService.GenerateAccessToken(user,roles),
                     RefreshToken = _tokenService.GenerateRefreshToken(user,roles),
                     Admin = roles.Contains("admin") ? true : false
-                };
+                });
             }
         }
 
