@@ -49,6 +49,7 @@ builder.Services.AddScoped(typeof(IGenericRepository<>), (typeof(GenericReposito
 
 // IdentityCore
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 builder.Services
     .AddIdentityCore<User>()
