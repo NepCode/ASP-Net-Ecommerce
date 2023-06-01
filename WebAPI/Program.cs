@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
 using System.Text;
+using WebAPI.Extensions;
 using WebAPI.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -109,7 +110,13 @@ builder.Services.AddTransient<ICartRepository, CartRepository>();
 builder.Services.AddTransient<IOrderRepository, OrderRepository>();
 builder.Services.AddTransient<IPaymentRepository, PaymentRepository>();
 
+//builder.Services.Configure<IPWhitelistOptions>(builder.Configuration.GetSection("IPWhitelistOptions"));
+
+
 var app = builder.Build();
+
+//app.UseIPWhitelist();
+
 
 // Run migrations
 using (var scope = app.Services.CreateScope())
