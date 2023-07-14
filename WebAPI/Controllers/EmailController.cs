@@ -1,6 +1,8 @@
 ﻿using Core.Interfaces;
 using Core.Models;
+using FluentEmail.Core;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -36,26 +38,78 @@ namespace WebAPI.Controllers
         }
 
         // POST api/<EmailController>
-        [HttpPost]
-        //public void Post([FromBody] string value)
-        public async Task<ActionResult<ServiceResponse<bool>>> sendEmail(string body)
+        [HttpPost("sendmail")]
+        public async Task<ActionResult<ServiceResponse<bool>>> SendMailAsync(MailData mail)
         {
-            var result = await _emailService.sendEmail(body);
-            return Ok(result);
+            //var result = await _emailService.sendEmail(mail.Body);
+            var result = await _emailService.SendAsync(mail, new CancellationToken());
 
-
+            if (result.Data)
+            {
+                return StatusCode(StatusCodes.Status200OK, "Mail has successfully been sent.");
+            }
+            else
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occured. The Mail could not be sent.");
+            }
         }
 
-        // PUT api/<EmailController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpPost("sendemailwithattachment")]
+        public async Task<ActionResult<ServiceResponse<bool>>> SendMailWithAttachmentAsync([FromForm] MailDataWithAttachments mailData)
         {
+            var result = await _emailService.SendWithAttachmentsAsync(mailData, new CancellationToken());
+
+            if (result.Data)
+            {
+                return StatusCode(StatusCodes.Status200OK, "Mail with attachment has successfully been sent.");
+            }
+            else
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occured. The Mail with attachment could not be sent.");
+            }
         }
 
-        // DELETE api/<EmailController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+
+        [HttpPost("sendemailusingtemplate")]
+        public async Task<ActionResult> SendEmailUsingTemplate(WelcomeMail welcomeMail)
         {
+            // Create MailData object
+            MailData mailData = new MailData(
+                new List<string> { welcomeMail.Email },
+                "Welcome to the MailKit Demo",
+                _emailService.GetEmailTemplate("welcome", welcomeMail));
+
+
+            var sendResult = await _emailService.SendAsync(mailData, new CancellationToken());
+
+            if (sendResult.Success)
+            {
+                return StatusCode(StatusCodes.Status200OK, "Mail has successfully been sent using template.");
+            }
+            else
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occured. The Mail could not be sent.");
+            }
+        }
+
+
+
+        [HttpPost("sendemailusingtemplateWithAttachments")]
+        public async Task<ActionResult> SendEmailUsingTemplate([FromForm] MailDataWithAttachments mailData)
+        {
+     
+            mailData.Body = _emailService.GetEmailTemplate("test", mailData);
+
+            var result = await _emailService.SendWithAttachmentsAsync(mailData, new CancellationToken());
+
+            if (result.Success)
+            {
+                return StatusCode(StatusCodes.Status200OK, "Mail has successfully been sent using template.");
+            }
+            else
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occured. The Mail could not be sent.");
+            }
         }
     }
 }

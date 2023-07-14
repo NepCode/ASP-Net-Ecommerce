@@ -1,5 +1,6 @@
 using BusinessLogic.Data;
 using BusinessLogic.Logic;
+using Core.Configuration;
 using Core.Interfaces;
 using Core.Models;
 using FluentValidation.AspNetCore;
@@ -73,6 +74,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+builder.Services.Configure<MailSettings>(builder.Configuration.GetSection(nameof(MailSettings)));
 
 
 
