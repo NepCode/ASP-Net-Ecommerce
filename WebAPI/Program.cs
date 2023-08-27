@@ -1,5 +1,6 @@
 using BusinessLogic.Data;
 using BusinessLogic.Logic;
+using Core.Configuration;
 using Core.Interfaces;
 using Core.Models;
 using FluentValidation.AspNetCore;
@@ -50,6 +51,7 @@ builder.Services.AddScoped(typeof(IGenericRepository<>), (typeof(GenericReposito
 
 // IdentityCore
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 builder.Services
     .AddIdentityCore<User>()
@@ -73,6 +75,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+builder.Services.Configure<MailSettings>(builder.Configuration.GetSection(nameof(MailSettings)));
 
 
 
