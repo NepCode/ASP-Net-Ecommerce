@@ -14,5 +14,7 @@ namespace Core.Interfaces
         Task<ServiceResponse<bool>> SendWithAttachmentsAsync(MailDataWithAttachments mailData, CancellationToken ct);
         string GetEmailTemplate<T>(string emailTemplate, T emailTemplateModel);
         string GetEmailTemplateList<T>(string emailTemplate, List<T> emailTemplateModel);
+
+        Task<ServiceResponse<bool>> SendEmailAsyncArray(MailData mail, CancellationToken ct);
     }
 }

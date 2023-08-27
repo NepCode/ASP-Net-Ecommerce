@@ -2,7 +2,9 @@
 using Core.Models;
 using FluentEmail.Core;
 using Microsoft.AspNetCore.Mvc;
+using MimeKit;
 using System.Collections.Generic;
+using System.Text;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -111,5 +113,22 @@ namespace WebAPI.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occured. The Mail could not be sent.");
             }
         }
+
+
+        [HttpPost("testArray")]
+        public async Task<ActionResult> SendEmailUsingArray(WelcomeMail mailDatadd)
+        {
+            MailData mailData = new MailData(
+               new List<string> { mailDatadd.Email },
+               "Welcome to the MailKit Demo",
+               null);
+
+            //Send Email to User
+            await _emailService.SendEmailAsyncArray(mailData, new CancellationToken());
+            return StatusCode(StatusCodes.Status200OK, "Mail has successfully been sent using template.");
+
+        }
     }
 }
+
+
