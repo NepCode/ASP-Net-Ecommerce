@@ -13,9 +13,9 @@ namespace BusinessLogic.Data
 
         public static async Task SeedUserAsync(UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
         {
-            if (!userManager.Users.Any())
+            User user;
             {
-                var user = new User
+                user = new User
                 {
                     Name = "neptune",
                     LastName = "neptune",
@@ -57,6 +57,7 @@ namespace BusinessLogic.Data
                     Name = "admin"
                 };
                 await roleManager.CreateAsync(role);
+                await userManager.AddToRoleAsync(user, "admin");
             }
 
         }

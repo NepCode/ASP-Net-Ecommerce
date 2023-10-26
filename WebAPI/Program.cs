@@ -81,11 +81,11 @@ builder.Services.Configure<MailSettings>(builder.Configuration.GetSection(nameof
 
 
 // DbContext
-var server = builder.Configuration.GetValue<string>("DBServer") ?? "localhost";
-var port = builder.Configuration["DBPort"] ?? "1433";
-var user = builder.Configuration["DBUser"] ?? "sa";
-var password = builder.Configuration["DBPassword"] ?? "A!a4765f8d7";
-var database = builder.Configuration["DBName"] ?? "asp_netcore_ecommerce";
+var server = Environment.GetEnvironmentVariable("DB_HOST") ?? builder.Configuration.GetValue<string>("ConnectionDB:DBServer");
+var port = Environment.GetEnvironmentVariable("DB_PORT") ?? builder.Configuration["ConnectionDB:DBPort"];
+var user = Environment.GetEnvironmentVariable("DB_USER") ?? builder.Configuration["ConnectionDB:DBUser"];
+var password = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? builder.Configuration["ConnectionDB:DBPassword"];
+var database = Environment.GetEnvironmentVariable("DB_NAME") ?? builder.Configuration["ConnectionDB:DBName"];
 
 builder.Services.AddDbContext<DataContext>(opts =>
 {
