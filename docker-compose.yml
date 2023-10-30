@@ -6,7 +6,7 @@ networks:
 
 services:
   db:
-    container_name: app-db
+    container_name: db-ecommerce
     image: mcr.microsoft.com/mssql/server
     environment:
       ACCEPT_EULA: "Y"
@@ -16,8 +16,8 @@ services:
     networks:
       - ecommerceapp
   web-api:
-    container_name: demo-api-netEcommerce
-    image: ecommerce:1.0.0
+    container_name: api-ecommerce
+    image: nepcode/api_ecommerce
     build: .
     environment:
       DB_HOST: "db"
